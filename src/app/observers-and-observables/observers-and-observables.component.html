@@ -1,3 +1,13 @@
 <p>
   observers-and-observables works!
 </p>
+log: <br>
+source$: {{ source$ | async }}
+<p></p>
+<ul>
+  <li *ngFor="let n of numbers">value: {{ n }}</li>
+</ul>
+<p>numbers map(n => n * 2)</p>
+<ul>
+  <li *ngFor="let n of numbersMap">value: {{ n }}</li>
+</ul>

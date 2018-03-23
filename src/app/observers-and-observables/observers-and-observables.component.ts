@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs/Observable";
+import {DataService} from "../shared/data.service";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-observers-and-observables',
@@ -8,25 +10,24 @@ import {Observable} from "rxjs/Observable";
 })
 export class ObserversAndObservablesComponent implements OnInit {
 
-  constructor() {
+  source$: Observable<number>;
+  numbers: number[] = [];
+  numbersMap: number[] = [];
+
+  constructor(
+    private dataService: DataService
+  ) {
   }
 
   ngOnInit() {
-    let numbers = [1, 5, 9];
-    let source = Observable.create(
-      observer => {
-        for(let n of numbers) {
-          observer.next(n);
-        }
-
-        observer.complete();
-      }
+    this.source$ = this.dataService.getM1Source();
+    this.source$.subscribe(
+      num => this.numbers.push(num)
     );
-
-    source.subscribe(
-      value => console.log(`value: ${value}`),
-        error => console.log(`error: ${error}`),
-      () => console.log('complete')
+    this.source$.pipe(
+      map(n => n * 2)
+    ).subscribe(
+      num => this.numbersMap.push(num)
     );
   }
 
