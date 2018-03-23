@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/from";
 import {Observer} from "rxjs/Observer";
@@ -10,26 +10,20 @@ import {Observer} from "rxjs/Observer";
 })
 export class ObserversAndObservablesComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
     let numbers = [1, 5, 9];
     let source = Observable.from(numbers);
 
-    source.subscribe(new MyObserver());
-    source.subscribe(new MyObserver());
+    source.subscribe(
+      value => console.log(`value: ${value}`),
+        error => console.log(`error: ${error}`),
+      () => console.log('complete')
+    );
   }
 
 }
 
-class MyObserver implements Observer<number> {
-  next(value) {
-    console.log(`value: ${value}`);
-  };
-  error(e) {
-    console.log(`error: ${e}`);
-  };
-  complete() {
-    console.log('complete');
-  };
-}
+
