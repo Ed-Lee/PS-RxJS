@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/from";
-import {Observer} from "rxjs/Observer";
 
 @Component({
   selector: 'app-observers-and-observables',
@@ -15,7 +13,15 @@ export class ObserversAndObservablesComponent implements OnInit {
 
   ngOnInit() {
     let numbers = [1, 5, 9];
-    let source = Observable.from(numbers);
+    let source = Observable.create(
+      observer => {
+        for(let n of numbers) {
+          observer.next(n);
+        }
+
+        observer.complete();
+      }
+    );
 
     source.subscribe(
       value => console.log(`value: ${value}`),
