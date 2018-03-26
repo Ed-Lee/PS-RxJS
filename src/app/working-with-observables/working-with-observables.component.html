@@ -1,8 +1,14 @@
 <p>
   working-with-observables works!
 </p>
-<div id="circle"
-  [ngStyle]="{
-    top: mouseXY.y + 'px',
-    left: mouseXY.x + 'px'
-  }"></div>
+
+
+<button #btn>get movies</button>
+
+<div id="output">
+  <ul>
+    <li *ngFor="let movie of movies">
+      {{ movie.title }}
+    </li>
+  </ul>
+</div>
