@@ -36,7 +36,9 @@ export class DataService {
           } else {
             return Promise.reject(r.statusText);
           }
-        }))
+        })).pipe(
+          retryWhen(this.retryStrategy())
+      )
     )
   }
 
@@ -62,7 +64,7 @@ export class DataService {
     );
   }
 
-  retryStrategy({attempts=4, delayT=1000}) {
+  retryStrategy({attempts=4, delayT=1000} = {}) {
     //retryWhen的參數是一個傳入Observable並傳回Observable的函數
     return function(errors: Observable<any>):Observable<any> { //該函數主要功能就是要每隔[delayT]秒試一次，不超[attempts]次
       return errors.pipe(
