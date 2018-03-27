@@ -47,17 +47,25 @@ export class DataService {
     return Observable.create(observer => {
       let xhr = new XMLHttpRequest();
 
-      xhr.addEventListener('load', () => {
+      let onLoad = function () {
         if (xhr.status === 200) {
           observer.next(JSON.parse(xhr.responseText));
-          observer.complete();
+          observer.complete(); //有 complete(), 似乎正常執行時會呼叫unsubscribe()
         } else {
           observer.error(xhr.statusText);
         }
-      });
+      };
+
+      xhr.addEventListener('load', onLoad);
 
       xhr.open('GET', url);
       xhr.send();
+
+      return () => {
+        console.log('in unsubscribe');
+        xhr.removeEventListener('load', onLoad);
+        xhr.abort();
+      }
 
     }).pipe(
       retryWhen(this.retryStrategy({attempts: 4, delayT: 1500}))
