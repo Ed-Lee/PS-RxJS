@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromEvent";
-import {flatMap} from "rxjs/operators";
+import {delay, flatMap, retry, retryWhen, scan, takeWhile} from "rxjs/operators";
 
 @Component({
   selector: 'app-working-with-observables',
@@ -27,9 +27,10 @@ export class WorkingWithObservablesComponent implements OnInit, AfterViewInit {
     let click$ = Observable.fromEvent(this.btnElm.nativeElement, 'click');
 
     click$.pipe(
-      flatMap(e => this.load('/assets/movies.json'))
+      flatMap(e => this.load('/assets/moviess.json'))
     ).subscribe(
-      o => this.movies = o
+      o => this.movies = o,
+      error => console.log(error)
     );
 
     // click$.subscribe(
@@ -48,13 +49,34 @@ export class WorkingWithObservablesComponent implements OnInit, AfterViewInit {
       let xhr = new XMLHttpRequest();
 
       xhr.addEventListener('load', () => {
-        observer.next(JSON.parse(xhr.responseText));
-        observer.complete();
+        if (xhr.status === 200) {
+          observer.next(JSON.parse(xhr.responseText));
+          observer.complete();
+        } else {
+          observer.error(xhr.statusText);
+        }
       });
 
       xhr.open('GET', url);
       xhr.send();
 
-    });
+    }).pipe(
+
+      retryWhen(this.retryStrategy())
+    );
+  }
+
+  private retryStrategy() {
+    //retryWhen的參數是一個傳入Observable並傳回Observable的函數
+    return function(errors: Observable<any>):Observable<any> { //該函數主要功能就是要每隔一秒試一次，不超4次
+      return errors.pipe(
+        scan((acc, value) => {
+          console.log(acc, value);
+          return acc + 1
+        }, 0),
+        takeWhile((acc => acc < 4)),
+        delay(1000)
+      );
+    }
   }
 }
