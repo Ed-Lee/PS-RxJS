@@ -2,6 +2,8 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromEvent";
 import {delay, flatMap, retry, retryWhen, scan, takeWhile} from "rxjs/operators";
+import "rxjs/add/observable/fromPromise";
+import "rxjs/add/observable/defer";
 
 @Component({
   selector: 'app-working-with-observables',
@@ -23,11 +25,12 @@ export class WorkingWithObservablesComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.loadWithFetch('/assets/movies.json');
     console.log(this.btnElm.nativeElement);
     let click$ = Observable.fromEvent(this.btnElm.nativeElement, 'click');
 
     click$.pipe(
-      flatMap(e => this.load('/assets/moviess.json'))
+      flatMap(e => this.loadWithFetch('/assets/movies.json'))
     ).subscribe(
       o => this.movies = o,
       error => console.log(error)
@@ -41,6 +44,12 @@ export class WorkingWithObservablesComponent implements OnInit, AfterViewInit {
     //     console.log(value);
     //   }
     // );
+  }
+
+  private loadWithFetch(url: string) {
+    return Observable.defer(
+      () => Observable.fromPromise(fetch(url).then(r => r.json()))
+    )
   }
 
   private load(url: string): Observable<any> {
