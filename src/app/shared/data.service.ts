@@ -36,9 +36,9 @@ export class DataService {
           } else {
             return Promise.reject(r.statusText);
           }
-        })).pipe(
-          retryWhen(this.retryStrategy())
-      )
+        }))
+    ).pipe(
+      retryWhen(this.retryStrategy())
     )
   }
 
