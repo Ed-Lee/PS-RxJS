@@ -39,7 +39,7 @@ export class DataService {
         }))
     ).pipe(
       retryWhen(this.retryStrategy())
-    )
+    );
   }
 
   load(url: string): Observable<any> {
@@ -64,18 +64,23 @@ export class DataService {
     );
   }
 
-  retryStrategy({attempts=4, delayT=1000} = {}) {
+  retryStrategy({attempts = 4, delayT = 1000} = {}) {
     //retryWhen的參數是一個傳入Observable並傳回Observable的函數
-    return function(errors: Observable<any>):Observable<any> { //該函數主要功能就是要每隔[delayT]秒試一次，不超[attempts]次
+    return function (errors: Observable<any>): Observable<any> { //該函數主要功能就是要每隔[delayT]秒試一次，不超[attempts]次
       return errors.pipe(
         scan((acc, value) => {
           console.log(acc, value);
-          return acc + 1
+          acc += 1;
+          if (acc < attempts) {
+            return acc;
+          } else {
+            throw new Error(''+value);
+          }
         }, 0),
         takeWhile((acc => acc < attempts)),
         delay(delayT)
       );
-    }
+    };
   }
 
 }
