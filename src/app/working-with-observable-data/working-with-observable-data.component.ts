@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {Observable} from "rxjs/Observable";
+import "rxjs/add/observable/from";
+import "rxjs/add/observable/of";
+import "rxjs/add/observable/merge";
+import "rxjs/add/observable/throw";
+import "rxjs/add/observable/onErrorResumeNext";
 
 @Component({
   selector: 'app-working-with-observable-data',
@@ -11,14 +16,12 @@ export class WorkingWithObservableDataComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    let source$ = Observable.create(observer => {
-      observer.next(1);
-      observer.next(2);
-      observer.error("Stop!");
-      //throw new Error(" trhow Error , Stop!");
-      observer.next(3);
-      observer.complete();
-    });
+    let source$ = Observable.onErrorResumeNext(
+      Observable.of(1),
+      Observable.from([2, 3, 4]),
+      Observable.throw(new Error('Observable throw, stop!')),
+      Observable.of(5)
+    );
 
     source$.subscribe(
       value => console.log(`value: ${value}`),
