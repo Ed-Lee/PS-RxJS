@@ -5,6 +5,7 @@ import "rxjs/add/observable/of";
 import "rxjs/add/observable/merge";
 import "rxjs/add/observable/throw";
 import "rxjs/add/observable/onErrorResumeNext";
+import {catchError} from "rxjs/operators";
 
 @Component({
   selector: 'app-working-with-observable-data',
@@ -16,12 +17,17 @@ export class WorkingWithObservableDataComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    let source$ = Observable.onErrorResumeNext(
+    let source$ = Observable.merge(
       Observable.of(1),
       Observable.from([2, 3, 4]),
       Observable.throw(new Error('Observable throw, stop!')),
       Observable.of(5)
-    );
+    ).pipe(
+      catchError(err => {
+        console.log(`CatchError: ${err}`);
+        return Observable.of(10);
+      })
+    )
 
     source$.subscribe(
       value => console.log(`value: ${value}`),
