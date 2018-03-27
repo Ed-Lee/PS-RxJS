@@ -1,39 +1,45 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
 import "rxjs/add/observable/merge";
 import "rxjs/add/observable/throw";
 import "rxjs/add/observable/onErrorResumeNext";
-import {catchError} from "rxjs/operators";
+import {catchError, flatMap} from "rxjs/operators";
+import {DataService} from "../shared/data.service";
 
 @Component({
   selector: 'app-working-with-observable-data',
   templateUrl: './working-with-observable-data.component.html',
   styleUrls: ['./working-with-observable-data.component.css']
 })
-export class WorkingWithObservableDataComponent implements OnInit {
+export class WorkingWithObservableDataComponent implements OnInit, AfterViewInit {
 
-  constructor() { }
+  movies: Array<any> = [];
+
+  @ViewChild('btn') btnElm: ElementRef;
+
+  constructor(private dataService: DataService) { }
 
   ngOnInit() {
-    let source$ = Observable.merge(
-      Observable.of(1),
-      Observable.from([2, 3, 4]),
-      Observable.throw(new Error('Observable throw, stop!')),
-      Observable.of(5)
-    ).pipe(
-      catchError(err => {
-        console.log(`CatchError: ${err}`);
-        return Observable.of(10);
-      })
-    )
-
-    source$.subscribe(
-      value => console.log(`value: ${value}`),
-      err => console.log(`Error: ${err}`),
-      () => console.log('Complete')
-    );
   }
 
+  ngAfterViewInit(): void {
+    console.log(this.btnElm.nativeElement);
+    let click$ = Observable.fromEvent(this.btnElm.nativeElement, 'click');
+
+    this.dataService.loadWithFetch('/assets/moviesw.json').subscribe(
+      o => this.movies = o,
+      error => console.log(`in error handler  ${error}`),
+      () => console.log('complete!')
+    )
+
+    click$.pipe(
+      flatMap(e => this.dataService.loadWithFetch('/assets/movies.json'))
+    ).subscribe(
+      o => this.movies = o,
+      error => console.log(`in error handler  ${error}`),
+      () => console.log('complete')
+    );
+  }
 }

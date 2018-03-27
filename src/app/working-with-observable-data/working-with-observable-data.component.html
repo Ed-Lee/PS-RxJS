@@ -2,3 +2,12 @@
   working-with-observable-data works!
 </p>
 
+<button #btn>get movies</button>
+
+<div id="output">
+  <ul>
+    <li *ngFor="let movie of movies">
+      {{ movie.title }}
+    </li>
+  </ul>
+</div>

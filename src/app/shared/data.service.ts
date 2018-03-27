@@ -27,9 +27,16 @@ export class DataService {
     );
   }
 
-  loadWithFetch(url: string) {
+  loadWithFetch(url: string): Observable<any> {
     return Observable.defer(
-      () => Observable.fromPromise(fetch(url).then(r => r.json()))
+      () => Observable.fromPromise(fetch(url).then(
+        r => {
+          if (r.status === 200) {
+            return r.json();
+          } else {
+            return Promise.reject(r.statusText);
+          }
+        }))
     )
   }
 
